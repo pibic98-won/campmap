@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>자연속 캠핑 배치도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: operator's board — date + counts on top, the drawn site map full width, then detail panel beside a checkable site list. */
+:root{
+  --bg:#eceee8; --surface:#ffffff; --ink:#1d2621; --muted:#5b6a61; --line:#d2d8cf;
+  --accent:#0f5c4a; --accent-ink:#ffffff;
+  --ground:#c8ccc3; --road:#fbfbf7; --park:#8a908b;
+  --site:#f3c22e; --site-ink:#2b2306; --res:#c63d2f; --res-ink:#ffffff;
+  --stream:#36a6e0; --stream-ink:#ffffff; --water-soft:#a7d6ec;
+  --pool:#2f7fd6; --fac:#1b1d1c; --fac-ink:#ffffff;
+  --sink:#d6352c; --pension:#e9dfb8; --pension-ink:#3a3420;
+  --play:#74c784; --play-ink:#123a1c; --sand:#b8774a; --smoke:#f2ab80; --smoke-ink:#3a1d0c;
+  --hwy:#f4c6d6; --hwy-ink:#4a1d2e;
+  --f-display:"Do Hyeon","IBM Plex Sans KR",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121613; --surface:#1b201c; --ink:#e6ebe5; --muted:#9aa89f; --line:#2e3731;
+  --accent:#6fd3b2; --accent-ink:#0b211a;
+  --ground:#2b312c; --road:#4a534c; --park:#5c645e;
+  --site:#dcb02a; --site-ink:#241c04; --res:#e0604b; --res-ink:#ffffff;
+  --stream:#1f5f85; --stream-ink:#e6f4fb; --water-soft:#2a5a72;
+  --pool:#2a5f9e; --fac:#0b0c0b; --fac-ink:#e8ece8;
+  --sink:#b23a33; --pension:#5a5437; --pension-ink:#f1ead0;
+  --play:#2f6e3a; --play-ink:#dcf3e1; --sand:#8a5838; --smoke:#8a5a3e; --smoke-ink:#fde7d8;
+  --hwy:#4a2f39; --hwy-ink:#f2d6e0; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121613; --surface:#1b201c; --ink:#e6ebe5; --muted:#9aa89f; --line:#2e3731;
+  --accent:#6fd3b2; --accent-ink:#0b211a;
+  --ground:#2b312c; --road:#4a534c; --park:#5c645e;
+  --site:#dcb02a; --site-ink:#241c04; --res:#e0604b; --res-ink:#ffffff;
+  --stream:#1f5f85; --stream-ink:#e6f4fb; --water-soft:#2a5a72;
+  --pool:#2a5f9e; --fac:#0b0c0b; --fac-ink:#e8ece8;
+  --sink:#b23a33; --pension:#5a5437; --pension-ink:#f1ead0;
+  --play:#2f6e3a; --play-ink:#dcf3e1; --sand:#8a5838; --smoke:#8a5a3e; --smoke-ink:#fde7d8;
+  --hwy:#4a2f39; --hwy-ink:#f2d6e0; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1440px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+button,input,select{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px}
+.eyebrow{margin:0;font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:600}
+h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:34px;line-height:1.1;text-wrap:balance}
+.dates{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dates button{border:1px solid var(--line);background:var(--surface);border-radius:8px;height:40px;min-width:40px;padding:0 12px;cursor:pointer;font-weight:600}
+.dates button:hover{border-color:var(--muted)}
+.dates input{height:40px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:0 10px;font-weight:600;font-variant-numeric:tabular-nums}
+.datelabel{font-family:var(--f-display);font-size:20px;min-width:9.5em;padding:0 4px}
+
+.stats{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 14px;display:flex;flex-direction:column;min-width:96px}
+.stat .k{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.03em}
+.stat b{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat.res b{color:var(--res)}
+.stat small{font-size:12px;color:var(--muted)}
+.switch{margin-left:auto;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}
+.switch input{width:20px;height:20px;accent-color:var(--accent)}
+
+.mapbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:18px;height:14px;border-radius:3px;display:inline-block}
+.zoom{display:flex;gap:4px;align-items:center}
+.zoom button{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;font-weight:600}
+.zoom button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sync{font-size:12.5px;color:var(--muted)}
+
+.mapwrap{overflow:auto;border-radius:12px;border:1px solid var(--line);background:var(--ground);-webkit-overflow-scrolling:touch}
+#map{display:block;width:100%;height:auto}
+@media (max-width:760px){#map{min-width:1100px}}
+
+/* SVG map */
+#map text{font-family:var(--f-body);pointer-events:none}
+.ground{fill:var(--ground)}
+.stream{fill:var(--stream)} .t-stream{fill:var(--stream-ink);font-weight:700}
+.road{fill:none;stroke:var(--road);stroke-width:24;stroke-linejoin:round;stroke-linecap:round}
+.road.thin{stroke-width:10}
+.park{fill:var(--park)}
+.f-fac{fill:var(--fac)} .t-fac{fill:var(--fac-ink);font-weight:700}
+.f-sink{fill:var(--sink)} .t-sink{fill:#fff;font-weight:700}
+.f-pension{fill:var(--pension)} .t-pension{fill:var(--pension-ink);font-weight:700}
+.f-lot{fill:var(--road)} .t-lot{fill:var(--muted);font-weight:700}
+.f-play{fill:var(--play)} .t-play{fill:var(--play-ink);font-weight:700}
+.f-sand{fill:var(--sand)} .t-sand{fill:#fff;font-weight:700}
+.f-smoke{fill:var(--smoke)} .t-smoke{fill:var(--smoke-ink);font-weight:700}
+.f-pool{fill:var(--pool)} .t-pool{fill:#fff;font-weight:700}
+.channel{fill:var(--water-soft)}
+.hwy{fill:var(--hwy)} .t-hwy{fill:var(--hwy-ink);font-weight:700}
+.arrow{fill:var(--fac)}
+.t-note{fill:var(--ink);font-weight:700}
+.entry{stroke:var(--play);stroke-width:6;stroke-dasharray:10 8;fill:none}
+
+.site{cursor:pointer;outline:none}
+.site .box{fill:var(--site);stroke:rgba(0,0,0,.18);stroke-width:1.5;transition:fill .15s}
+.site .num{font-family:var(--f-display)!important;fill:var(--site-ink)}
+.site .dim{fill:var(--site-ink);font-weight:600;font-variant-numeric:tabular-nums;opacity:.85}
+.site .badge{display:none}
+.site.res .box{fill:var(--res)}
+.site.res .num,.site.res .dim{fill:var(--res-ink)}
+.site.res .badge{display:inline}
+.badge circle{fill:var(--surface);stroke:var(--res);stroke-width:2.5}
+.badge path{fill:none;stroke:var(--res);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.site:hover .box{stroke:var(--ink);stroke-width:2.5}
+.site.sel .box{stroke:var(--accent);stroke-width:5}
+.site:focus-visible .box{stroke:var(--accent);stroke-width:5;stroke-dasharray:8 5}
+.site.faded{opacity:.35}
+
+.lower{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:860px){.lower{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
+.detail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:860px){.detail{position:static}}
+.detail h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1.15}
+.detail .empty{color:var(--muted);margin:0}
+.dhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.pill{font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pill.free{background:color-mix(in srgb,var(--site) 35%,transparent);color:var(--ink)}
+.pill.res{background:var(--res);color:var(--res-ink)}
+dl.spec{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0 0 14px}
+dl.spec dt{color:var(--muted);font-size:13px;font-weight:600;padding-top:2px}
+dl.spec dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+dl.spec dd small{color:var(--muted);font-weight:500}
+.big{font-family:var(--f-display);font-weight:400;font-size:22px}
+.check{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:2px solid var(--line);cursor:pointer;font-weight:700;font-size:16px}
+.check input{width:24px;height:24px;accent-color:var(--res)}
+.check.on{border-color:var(--res);background:color-mix(in srgb,var(--res) 10%,transparent)}
+.memo{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.memo label{font-size:13px;color:var(--muted);font-weight:600}
+.memo input{height:40px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--bg)}
+.hint{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+
+.list{padding:0;overflow:hidden}
+.listhead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.listhead h3{margin:0;font-size:16px}
+.listhead select{border:1px solid var(--line);border-radius:8px;height:34px;padding:0 8px;background:var(--surface)}
+.tablewrap{max-height:560px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:var(--surface);text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1}
+td{padding:7px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.memo-c{white-space:normal;color:var(--muted);min-width:120px}
+tr{cursor:pointer}
+tr:hover td{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+tr.sel td{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+tr.res td:first-child b{color:var(--res)}
+td input{width:20px;height:20px;accent-color:var(--res);cursor:pointer;vertical-align:middle}
+.foot{font-size:12.5px;color:var(--muted);margin:0}
+@media (prefers-reduced-motion:reduce){.site .box{transition:none}}
+.staff{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600}
+.staff button{border:1px solid var(--line);background:var(--bg);border-radius:8px;height:34px;padding:0 12px;cursor:pointer;font-weight:600}
+.staff button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.staff input{height:34px;width:120px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--bg)}
+.staff .err{color:var(--res);font-size:13px}
+.staff .on{color:var(--accent)}
+.public .memo-col{display:none}
+</style>
+</head>
+<body class="public">
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">자연속펜션 · 캠핑장</p>
+      <h1>사이트 배치도</h1>
+    </div>
+    <div class="dates">
+      <button id="prev" type="button" aria-label="전날">‹</button>
+      <span class="datelabel" id="dateLabel" aria-live="polite"></span>
+      <button id="next" type="button" aria-label="다음날">›</button>
+      <input type="date" id="date" aria-label="날짜 선택">
+      <button id="today" type="button">오늘</button>
+    </div>
+  </header>
+
+  <section class="stats">
+    <div class="stat res"><span class="k">예약</span><b id="cntRes">0</b></div>
+    <div class="stat"><span class="k">빈 사이트</span><b id="cntFree">64</b></div>
+    <div class="stat"><span class="k">요금 기준</span><b id="season">비수기</b><small id="seasonNote"></small></div>
+    <div class="staff" id="staffBox"></div>
+    <label class="switch" for="quick" id="quickWrap" hidden><input type="checkbox" id="quick"> 지도에서 누르면 바로 예약 체크</label>
+  </section>
+
+  <div class="mapbar">
+    <div class="legend">
+      <span><i class="sw" style="background:var(--site)"></i>빈 사이트</span>
+      <span><i class="sw" style="background:var(--res)"></i>예약됨</span>
+      <span><i class="sw" style="background:var(--park)"></i>주차</span>
+      <span>숫자 아래 = 가로×세로(m), 주차장 제외</span>
+    </div>
+    <div class="zoom" role="group" aria-label="지도 확대">
+      <button type="button" data-z="1" id="z1">맞춤</button>
+      <button type="button" data-z="1.5" id="z15">1.5배</button>
+      <button type="button" data-z="2" id="z2">2배</button>
+    </div>
+  </div>
+
+  <div class="mapwrap" id="mapwrap">
+    <svg id="map" viewBox="0 0 2000 830" role="img" aria-label="캠핑장 사이트 배치도"></svg>
+  </div>
+  <div class="sync" id="sync">예약 현황을 불러오는 중…</div>
+
+  <div class="lower">
+    <aside class="panel detail" id="detail"></aside>
+    <section class="panel list">
+      <div class="listhead">
+        <h3>사이트 목록</h3>
+        <select id="filter" aria-label="목록 필터">
+          <option value="all">전체 보기</option>
+          <option value="free">빈 사이트만</option>
+          <option value="res">예약된 사이트만</option>
+        </select>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>사이트</th><th>크기(m)</th><th>면적</th><th>요금</th><th>예약</th><th class="memo-col">메모</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <p class="foot">이용시간: 낮 2시 ~ 다음날 낮 12시 · 기준 인원 4명, 차량 1대 · 성수기 요금은 7~8월 적용 · 크기는 예약 페이지 표 기준(주차장 제외)</p>
+</div>
+
+<script>
+// ▼ Google Apps Script 웹 앱 주소(배포 후 받은 .../exec 주소)를 넣으세요.
+const API_URL = "여기에_웹앱_URL을_붙여넣으세요";
+
+(() => {
+// ---------- data ----------
+const SIZES = {
+  1:"4.5x8",2:"4.6x8",3:"4.9x8.5",4:"5.5x8",5:"5x8",6:"5x8",7:"5x8",8:"4x8.5",9:"4.5x8",10:"5.5x6.7",
+  11:"5.8x7.5",12:"4.6x8",13:"5x7",14:"5x6.5",15:"5.5x7",16:"6x7",17:"5.5x6.5",18:"4x7",19:"6x7",20:"4.8x7.4",
+  21:"5x6.4",22:"6.5x7.6",23:"4.8x7",24:"5.5x7",25:"5x7",26:"5.5x7.4",27:"4.6x7",28:"4x7",29:"4x7",30:"4.2x7",
+  31:"5.5x6",32:"6.5x6.5",33:"5.5x7",34:"6.5x7",35:"6x7",36:"6x7",37:"5.5x6",38:"5.5x6.5",39:"5.7x7",40:"5x7.5",
+  41:"5.3x7",42:"5x7",43:"6x6.5",44:"5x7",45:"4.5x7",46:"5.5x6.7",47:"5.4x7",48:"5.2x6.3",49:"4.6x7",50:"3.8x6.5",
+  51:"5.3x7",52:"5.3x7",53:"4.5x6.6",54:"5.6x6",55:"5.7x6",56:"4.5x7",57:"4.5x7",58:"4.5x6.7"
+};
+const PRICE = { site:[50000,70000], bung:[80000,120000] };
+
+// [number, x, y, w, h, rotation]
+const SITE_GEO = [
+  [38,92,50,58,48],[37,162,50,56,48],[36,232,50,56,48],[35,302,50,56,48],[34,370,50,58,48],
+  [33,466,50,60,48],[32,544,50,62,48],[31,648,50,62,48],
+  [28,1032,50,66,48],[27,1122,50,66,48],[26,1208,50,66,48],[25,1292,50,62,48],[24,1372,50,64,48],[23,1468,50,66,48],
+  [39,8,68,44,78],[40,8,192,42,80],
+  [41,293,208,60,66],[45,378,264,68,52,35],[46,488,183,72,52],[49,608,178,72,48],[50,732,168,56,52],
+  [47,484,268,76,48],[51,654,258,72,44],[52,748,258,72,44],
+  [42,224,325,72,60,30],[43,302,373,72,64,30],[44,400,392,56,76],[48,484,352,72,50],[53,614,332,48,54],
+  [54,690,418,64,62],[55,760,418,64,62],
+  [58,394,555,64,50],[57,502,555,62,50],[56,578,555,58,50],
+  [29,876,148,46,72],[30,878,278,44,70],
+  [16,1008,212,66,64],[17,1084,218,70,58],[18,1184,208,52,68],[19,1244,208,52,68],[20,1368,218,72,58],
+  [15,1076,298,64,48],[14,1178,298,76,48],[13,1294,298,76,48],[12,1408,292,72,50],[11,1494,262,56,80],[10,1562,290,64,52],
+  [22,1693,266,66,62,-18],[21,1778,316,62,46],
+  [5,1008,413,54,72],[4,942,468,54,76],[6,1090,433,80,52],[7,1290,433,80,52],[8,1454,433,80,52],[9,1600,433,72,52],
+  [3,1028,518,72,44],[2,1122,514,54,68],[1,1198,548,82,42]
+];
+const BUNG_GEO = [[6,1748,460,52,46],[5,1748,537,52,46],[4,1748,594,52,46],[1,1568,694,48,52],[2,1638,694,48,52],[3,1704,694,48,52]];
+
+const SITES = [];
+BUNG_GEO.slice().sort((a,b)=>a[0]-b[0]).forEach(([n,x,y,w,h]) => SITES.push({k:"b"+n, n, bung:true, name:"방갈로 "+n, x,y,w,h}));
+SITE_GEO.slice().sort((a,b)=>a[0]-b[0]).forEach(([n,x,y,w,h,r]) => {
+  const [sw,sh] = SIZES[n].split("x").map(Number);
+  SITES.push({k:"s"+n, n, bung:false, name:n+"번", x,y,w,h,r, sw, sh});
+});
+const BY_KEY = Object.fromEntries(SITES.map(s => [s.k, s]));
+const TOTAL = SITES.length;
+
+const PARKING = [
+  [52,52,22,40],[10,280,40,20],[104,102,36,18],[170,102,36,18],[240,102,36,18],[310,102,36,18],[378,102,36,18],
+  [434,50,22,46],[612,50,22,46],[714,50,24,46],[1004,50,24,46],[1140,102,36,18],[1220,102,36,18],[1302,102,36,18],
+  [1440,50,24,46],[1538,50,22,46],
+  [240,232,44,22],[410,186,20,42],[434,186,20,42],[566,186,22,44],[684,186,24,40],[794,186,32,22],
+  [676,306,40,18],[772,306,40,18],[182,312,22,44,30],[482,424,22,42],[512,424,22,42],[598,424,22,42],[626,424,22,42],
+  [618,390,40,18],[706,390,40,20],[770,390,40,20],[310,532,26,56],[362,555,26,50],
+  [924,222,22,48],[880,355,42,22],
+  [1046,160,22,46],[1122,178,24,40],[1158,178,24,40],[1302,212,22,44],[1334,212,22,44],[1452,228,24,44],
+  [1012,298,22,48],[1044,298,22,48],[1156,298,20,48],[1268,298,22,48],
+  [1622,148,44,22,-25],[1642,190,44,22,-25],[1662,232,44,22,-25],[1846,318,22,40],
+  [1174,432,22,42],[1262,436,22,40],[1426,436,22,40],[1572,436,22,40],[920,500,22,42],
+  [1030,566,46,22],[1128,596,44,22],[1214,596,44,22],
+  [1826,464,20,36],[1826,541,20,36],[1826,598,20,36],[1572,672,30,14],[1642,672,30,14],[1708,672,30,14]
+];
+// [x,y,w,h,kind,label,vertical,fontSize]
+const FACILITIES = [
+  [640,645,285,115,"lot","펜션 주차장",0,22],[1864,378,88,266,"lot","주차장",1,26],
+  [1000,488,680,20,"channel"],[1000,488,20,80,"channel"],
+  [1302,510,378,56,"pool","수영장",0,24],[1300,566,62,32,"fac","돌탑",0,15],[1364,576,276,24,"play","큰 평상",0,14],
+  [930,52,32,72,"sink","개수대",1,15],[560,418,30,78,"sink","개수대",1,15],[1366,660,72,36,"sink","개수대",0,15],
+  [650,553,98,58,"fac","샤워실",0,20],[748,553,98,58,"fac","화장실",0,20],
+  [1222,662,90,104,"fac","매점\n관리실",0,19],[985,680,236,82,"pension","펜 션",0,24],
+  [1955,380,36,120,"play","트램폴린",1,15],[55,440,118,40,"play","트램폴린",0,17],[55,500,118,44,"sand","모래놀이터",0,17],
+  [528,708,104,34,"smoke","흡연구역",0,15],[1444,656,110,44,"play","작은 평상",0,16],[1366,724,104,40,"pension","분리수거장",0,15]
+];
+
+// ---------- svg ----------
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("map");
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, cls, fs, extra){
+  const t = el("text", Object.assign({x, y, class:cls, "text-anchor":"middle", "font-size":fs}, extra||{}), parent);
+  t.textContent = s; return t;
+}
+function multiline(parent, x, cy, lines, cls, fs, lh){
+  const top = cy - ((lines.length - 1) * lh) / 2 + fs * 0.35;
+  lines.forEach((l, i) => txt(parent, x, top + i * lh, l, cls, fs));
+}
+
+el("rect", {x:0,y:0,width:2000,height:830,class:"ground"}, svg);
+el("polygon", {points:"0,0 2000,0 2000,160 1730,160 1610,44 0,44", class:"stream"}, svg);
+txt(svg, 905, 31, "계 곡", "t-stream", 24);
+
+const roads = el("g", {}, svg);
+["M125 140 H858 V515 H352 L125 392 Z","M985 140 H1590 L1705 378 H985 Z","M1705 378 H1862",
+ "M985 378 L893 508","M352 515 H890 L1000 632 H1715 V378","M1000 632 L928 690"].forEach(d => el("path",{d,class:"road"},roads));
+el("path", {d:"M704 355 H846", class:"road thin"}, roads);
+
+const parkG = el("g", {}, svg);
+PARKING.forEach(([x,y,w,h,r]) => {
+  const a = {x,y,width:w,height:h,rx:2,class:"park"};
+  if (r) a.transform = `rotate(${r} ${x+w/2} ${y+h/2})`;
+  el("rect", a, parkG);
+});
+
+const facG = el("g", {}, svg);
+FACILITIES.forEach(([x,y,w,h,kind,label,vert,fs]) => {
+  el("rect", {x,y,width:w,height:h,rx:kind==="channel"?0:3,class:kind==="channel"?"channel":"f-"+kind}, facG);
+  if (!label) return;
+  const lines = vert ? [...label.replace(/\s/g,"")] : label.split("\n");
+  multiline(facG, x+w/2, y+h/2, lines, "t-"+kind, fs, fs*1.15);
+});
+// valley entrance arrow + main entrance
+el("polygon", {points:"855,48 833,74 846,74 846,98 864,98 864,74 877,74", class:"arrow"}, svg);
+txt(svg, 838, 124, "계곡 입구", "t-note", 16);
+el("path", {d:"M1332 646 V780", class:"entry"}, svg);
+el("rect", {x:1318,y:688,width:28,height:56,rx:4,class:"f-lot"}, svg);
+multiline(svg, 1332, 716, ["입","구"], "t-note", 17, 20);
+el("rect", {x:0,y:782,width:2000,height:48,class:"hwy"}, svg);
+txt(svg, 390, 815, "‹‹‹  대구 · 운문사 방향", "t-hwy", 22);
+txt(svg, 1560, 815, "부산 · 울산 방향  ›››", "t-hwy", 22);
+
+const siteG = el("g", {}, svg);
+const siteEls = {};
+const fmtNum = v => String(v);
+SITES.forEach(s => {
+  const cx = s.x + s.w/2, cy = s.y + s.h/2;
+  const g = el("g", {class:"site", "data-k":s.k, tabindex:"0", role:"button"}, siteG);
+  if (s.r) g.setAttribute("transform", `rotate(${s.r} ${cx} ${cy})`);
+  const t = el("title", {}, g);
+  t.textContent = s.bung ? `${s.name} (에어컨 없음)` : `${s.n}번 · ${fmtNum(s.sw)}×${fmtNum(s.sh)}m · ${(s.sw*s.sh).toFixed(1)}㎡`;
+  el("rect", {x:s.x,y:s.y,width:s.w,height:s.h,rx:4,class:"box"}, g);
+  if (s.bung){
+    txt(g, cx, s.y+15, "방갈로", "dim", 11);
+    txt(g, cx, s.y+s.h-8, String(s.n), "num", 24);
+  } else {
+    txt(g, cx, cy+4, String(s.n), "num", 23);
+    const dim = `${s.sw}×${s.sh}`;
+    let fs = 14;
+    while (dim.length * fs * 0.58 > s.w - 4 && fs > 10) fs -= 0.5;
+    txt(g, cx, cy+19, dim, "dim", fs);
+  }
+  const b = el("g", {class:"badge", transform:`translate(${s.x+s.w-2} ${s.y+2})`}, g);
+  el("circle", {cx:0, cy:0, r:10}, b);
+  el("path", {d:"M-4.5 0.5 L-1.2 3.8 L4.5 -3"}, b);
+  siteEls[s.k] = g;
+});
+
+// ---------- state ----------
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,"0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseIso = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const WD = ["일","월","화","수","목","금","토"];
+const won = v => v.toLocaleString("ko-KR") + "원";
+
+let currentDate = iso(new Date());
+let reserved = new Map();
+let selected = null;
+const store = { staff:false, pin:"", loaded:false, err:"", loginOpen:false, loginErr:"" };
+
+function lsGet(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } }
+function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+
+const isPeak = () => { const m = parseIso(currentDate).getMonth() + 1; return m === 7 || m === 8; };
+const priceOf = s => (s.bung ? PRICE.bung : PRICE.site)[isPeak() ? 1 : 0];
+
+// ---------- rendering ----------
+function renderDate(){
+  const d = parseIso(currentDate);
+  $("dateLabel").textContent = `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}. (${WD[d.getDay()]})`;
+  $("date").value = currentDate;
+  const peak = isPeak();
+  $("season").textContent = peak ? "성수기" : "비수기";
+  $("seasonNote").textContent = peak ? "사이트 7만 · 방갈로 12만" : "사이트 5만 · 방갈로 8만";
+}
+
+function refresh(){
+  let n = 0;
+  SITES.forEach(s => {
+    const on = reserved.has(s.k); if (on) n++;
+    const g = siteEls[s.k];
+    g.classList.toggle("res", on);
+    g.classList.toggle("sel", selected === s.k);
+    g.setAttribute("aria-label", `${s.name} ${on ? "예약됨" : "빈 사이트"}`);
+  });
+  $("cntRes").textContent = n;
+  $("cntFree").textContent = TOTAL - n;
+  renderDetail();
+  renderTable();
+}
+
+function renderDetail(){
+  const box = $("detail");
+  if (!selected){
+    box.innerHTML = `<div class="dhead"><h2>사이트 정보</h2></div>
+      <p class="empty">지도나 목록에서 사이트를 누르면 크기, 요금, 예약 체크가 여기에 나옵니다.</p>
+      <p class="hint">빨간색 사이트는 이 날짜에 예약된 자리입니다. 날짜를 바꿔 다른 날도 확인할 수 있습니다.</p>`;
+    return;
+  }
+  const s = BY_KEY[selected];
+  const on = reserved.has(s.k);
+  const memo = on ? (reserved.get(s.k).memo || "") : "";
+  const sizeRow = s.bung
+    ? `<dt>크기</dt><dd>— <small>(예약표에 표기 없음)</small></dd><dt>시설</dt><dd>에어컨 없음</dd>`
+    : `<dt>크기</dt><dd><span class="big">${s.sw} × ${s.sh}</span> m <small>주차장 제외</small></dd><dt>면적</dt><dd>${(s.sw*s.sh).toFixed(1)}㎡</dd>`;
+  const ro = !store.staff;
+  box.innerHTML = `
+    <div class="dhead"><h2>${s.bung ? s.name : s.n + "번 사이트"}</h2>
+      <span class="pill ${on ? "res" : "free"}">${on ? "예약됨" : "빈 사이트"}</span></div>
+    <dl class="spec">${sizeRow}
+      <dt>인원·차량</dt><dd>4명 · 1대</dd>
+      <dt>요금</dt><dd>${won(priceOf(s))} <small>${isPeak() ? "성수기" : "비수기"}</small></dd>
+      <dt>날짜</dt><dd>${$("dateLabel").textContent}</dd></dl>
+    ${ro ? `<p class="hint">예약 문의: 010-9908-6488 (당일 예약은 전화로 받습니다)</p>` : `
+    <label class="check ${on ? "on" : ""}" for="dChk"><input type="checkbox" id="dChk" ${on ? "checked" : ""}> 이 날짜 예약됨</label>
+    <div class="memo"><label for="dMemo">메모 (예약자, 인원 등)</label>
+      <input id="dMemo" type="text" maxlength="80" value="${escapeHtml(memo)}" placeholder="예: 김OO 2박"></div>`}`;
+  if (ro) return;
+  $("dChk").addEventListener("change", e => setRes(s.k, e.target.checked, $("dMemo").value.trim()));
+  const mi = $("dMemo");
+  mi.addEventListener("change", () => {
+    const v = mi.value.trim();
+    if (reserved.has(s.k)) { if ((reserved.get(s.k).memo || "") !== v) setRes(s.k, true, v); }
+    else if (v) setRes(s.k, true, v);
+  });
+  mi.addEventListener("keydown", e => { if (e.key === "Enter") mi.blur(); });
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+const tbody = $("tbody");
+const rows = {};
+SITES.forEach(s => {
+  const tr = document.createElement("tr");
+  tr.dataset.k = s.k;
+  tr.innerHTML = `<td><b>${s.name}</b></td>
+    <td>${s.bung ? "— (에어컨 없음)" : s.sw + " × " + s.sh}</td>
+    <td>${s.bung ? "—" : (s.sw*s.sh).toFixed(1) + "㎡"}</td>
+    <td class="pr"></td>
+    <td><input type="checkbox" id="c-${s.k}" aria-label="${s.name} 예약"></td>
+    <td class="memo-c memo-col"></td>`;
+  tbody.appendChild(tr);
+  const cb = tr.querySelector("input");
+  cb.addEventListener("click", e => e.stopPropagation());
+  cb.addEventListener("change", () => setRes(s.k, cb.checked, reserved.get(s.k)?.memo || ""));
+  tr.addEventListener("click", () => select(s.k, false));
+  rows[s.k] = { tr, cb, pr: tr.querySelector(".pr"), memo: tr.querySelector(".memo-c") };
+});
+
+function renderTable(){
+  const f = $("filter").value;
+  const ro = !store.staff;
+  SITES.forEach(s => {
+    const r = rows[s.k], on = reserved.has(s.k);
+    r.cb.checked = on; r.cb.disabled = ro;
+    r.tr.classList.toggle("res", on);
+    r.tr.classList.toggle("sel", selected === s.k);
+    r.pr.textContent = won(priceOf(s));
+    r.memo.textContent = on ? (reserved.get(s.k).memo || "") : "";
+    r.tr.hidden = (f === "free" && on) || (f === "res" && !on);
+    siteEls[s.k].classList.toggle("faded", (f === "free" && on) || (f === "res" && !on));
+  });
+}
+
+function select(k, fromMap){
+  if (fromMap && $("quick").checked && store.staff){
+    selected = k;
+    const on = reserved.has(k);
+    setRes(k, !on, on ? "" : "");
+    return;
+  }
+  selected = selected === k && fromMap ? null : k;
+  refresh();
+}
+
+siteG.addEventListener("click", e => {
+  const g = e.target.closest(".site"); if (g) select(g.dataset.k, true);
+});
+siteG.addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const g = e.target.closest(".site"); if (!g) return;
+  e.preventDefault(); select(g.dataset.k, true);
+});
+
+// ---------- persistence (Google Apps Script) ----------
+async function run(fn, ...args){
+  if (!/^https:\/\/script\.google\.com\//.test(API_URL)) throw new Error("API_URL이 설정되지 않았습니다.");
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ fn, args })
+  });
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || "요청을 처리하지 못했습니다.");
+  return j.result;
+}
+let loadSeq = 0, pendingWrites = 0, writeChain = Promise.resolve();
+
+async function load(){
+  const d = currentDate, seq = ++loadSeq;
+  try {
+    const r = await run("getDay", d, store.pin);
+    if (seq !== loadSeq || d !== currentDate || pendingWrites > 0) return;
+    reserved = new Map(r.sites.map(x => [x.site, {memo: x.memo || ""}]));
+    if (store.staff && !r.staff) logout();
+    store.loaded = true; store.err = "";
+    renderSync(); refresh();
+  } catch(e){
+    if (seq !== loadSeq) return;
+    store.err = "예약 현황을 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.";
+    renderSync();
+  }
+}
+
+function subscribe(){
+  reserved = new Map(); store.loaded = false;
+  renderSync(); refresh(); load();
+}
+
+function setRes(k, on, memo){
+  if (!store.staff) return;
+  const d = currentDate;
+  if (on) reserved.set(k, {memo: memo || ""}); else reserved.delete(k);
+  refresh();
+  pendingWrites++;
+  writeChain = writeChain
+    .then(() => run("setReservation", d, k, on, memo || "", store.pin))
+    .then(() => { store.err = ""; },
+          e => { store.err = "저장하지 못했습니다. " + ((e && e.message) || "잠시 뒤 다시 체크해 주세요."); })
+    .then(() => { pendingWrites--; renderSync(); if (pendingWrites === 0) load(); });
+}
+
+function renderSync(){
+  const s = $("sync");
+  if (store.err){ s.textContent = store.err; return; }
+  if (!store.loaded) s.textContent = "예약 현황을 불러오는 중…";
+  else if (store.staff) s.textContent = "직원 모드: 체크하면 바로 저장되고, 화면은 30초마다 새 현황으로 바뀝니다.";
+  else s.textContent = "빨간색이 예약된 사이트입니다. 화면은 30초마다 새 현황으로 바뀝니다.";
+}
+
+function renderStaff(){
+  const box = $("staffBox");
+  if (store.staff){
+    box.innerHTML = `<span class="on">● 직원 모드</span><button type="button" id="logoutBtn">로그아웃</button>`;
+    $("logoutBtn").addEventListener("click", logout);
+  } else if (store.loginOpen){
+    box.innerHTML = `<form id="loginForm" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0">
+      <label for="pinInput">비밀번호</label>
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password">
+      <button type="submit" class="primary">확인</button><button type="button" id="cancelBtn">취소</button>
+      ${store.loginErr ? `<span class="err">${store.loginErr}</span>` : ""}</form>`;
+    $("pinInput").focus();
+    $("cancelBtn").addEventListener("click", () => { store.loginOpen = false; store.loginErr = ""; renderStaff(); });
+    $("loginForm").addEventListener("submit", e => { e.preventDefault(); tryLogin($("pinInput").value.trim()); });
+  } else {
+    box.innerHTML = `<button type="button" id="loginBtn">직원 로그인</button>`;
+    $("loginBtn").addEventListener("click", () => { store.loginOpen = true; renderStaff(); });
+  }
+  $("quickWrap").hidden = !store.staff;
+  document.body.classList.toggle("public", !store.staff);
+}
+
+async function tryLogin(pin){
+  if (!pin) return;
+  let ok = false;
+  try { ok = await run("checkPin", pin); } catch(e){ store.loginErr = "확인하지 못했습니다. 다시 시도해 주세요."; renderStaff(); return; }
+  if (!ok){ store.loginErr = "비밀번호가 맞지 않습니다."; lsSet("camp-pin", ""); renderStaff(); return; }
+  store.staff = true; store.pin = pin; store.loginOpen = false; store.loginErr = "";
+  lsSet("camp-pin", pin);
+  renderStaff(); renderSync(); refresh(); load();
+}
+
+function logout(){
+  store.staff = false; store.pin = ""; lsSet("camp-pin", "");
+  renderStaff(); renderSync(); refresh(); load();
+}
+
+setInterval(() => { if (!document.hidden && pendingWrites === 0) load(); }, 30000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && pendingWrites === 0) load(); });
+
+// ---------- controls ----------
+function goDate(d){ currentDate = d; selected = selected; renderDate(); subscribe(); }
+$("prev").addEventListener("click", () => { const d = parseIso(currentDate); d.setDate(d.getDate()-1); goDate(iso(d)); });
+$("next").addEventListener("click", () => { const d = parseIso(currentDate); d.setDate(d.getDate()+1); goDate(iso(d)); });
+$("today").addEventListener("click", () => goDate(iso(new Date())));
+$("date").addEventListener("change", e => { if (e.target.value) goDate(e.target.value); });
+$("filter").addEventListener("change", renderTable);
+
+const quick = $("quick");
+quick.checked = !!lsGet("camp-quick", false);
+quick.addEventListener("change", () => lsSet("camp-quick", quick.checked));
+
+function setZoom(z){
+  svg.style.width = (z * 100) + "%";
+  document.querySelectorAll(".zoom button").forEach(b => b.setAttribute("aria-pressed", String(Number(b.dataset.z) === z)));
+  lsSet("camp-zoom", z);
+}
+document.querySelectorAll(".zoom button").forEach(b => b.addEventListener("click", () => setZoom(Number(b.dataset.z))));
+setZoom(Number(lsGet("camp-zoom", 1)) || 1);
+
+renderDate(); renderStaff(); renderSync(); refresh();
+load();
+const savedPin = lsGet("camp-pin", "");
+if (savedPin) tryLogin(savedPin);
+})();
+</script>
+</body>
+</html>
