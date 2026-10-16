@@ -1,8 +1,12 @@
 // 자연속 캠핑 배치도 — 예약 저장 서버 (Google Apps Script)
 // 예약 데이터는 이 스크립트가 연결된 스프레드시트의 '예약' 시트에 저장됩니다.
 
-// ▼ 직원 비밀번호: 꼭 원하는 값으로 바꾼 뒤 배포하세요.
-const STAFF_PIN = '1234';
+// 직원 비밀번호는 코드에 적지 않습니다(GitHub에 공개되기 때문).
+// Apps Script 편집기 → 프로젝트 설정(톱니바퀴) → 스크립트 속성에
+// 속성 이름 STAFF_PIN, 값은 원하는 비밀번호로 추가하세요.
+function staffPin_() {
+  return PropertiesService.getScriptProperties().getProperty('STAFF_PIN') || '';
+}
 
 const SHEET_NAME = '예약';
 // 열 순서: 날짜 | 사이트 | 메모 | 수정시각 | 키
@@ -51,7 +55,8 @@ function sheet_() {
 }
 
 function isStaff_(pin) {
-  return String(pin || '') === String(STAFF_PIN);
+  const real = staffPin_();
+  return real !== '' && String(pin || '') === real;
 }
 
 function validDate_(d) {
@@ -60,6 +65,7 @@ function validDate_(d) {
 
 // 직원 비밀번호 확인 (틀리면 잠깐 기다리게 해서 마구 대입하기 어렵게 함)
 function checkPin(pin) {
+  if (!staffPin_()) throw new Error('서버에 직원 비밀번호(STAFF_PIN)가 설정되지 않았습니다.');
   const ok = isStaff_(pin);
   if (!ok) Utilities.sleep(800);
   return ok;
